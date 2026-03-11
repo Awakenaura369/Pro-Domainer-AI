@@ -309,18 +309,18 @@ def generate_pdf_report(domains, niche):
 
     for i, d in enumerate(domains, 1):
         sc = d.get("score_num", 0)
-        score_color = GREEN if sc >= 8 else (YELLOW if sc >= 5 else RED)
-        comp = d.get("competition", "N/A")
-        comp_color = GREEN if comp == "Low" else (YELLOW if comp == "Medium" else RED)
+        score_hex = "#3fb950" if sc >= 8 else ("#d29922" if sc >= 5 else "#f85149")
+        comp      = d.get("competition", "N/A")
+        comp_hex  = "#3fb950" if comp == "Low" else ("#d29922" if comp == "Medium" else "#f85149")
 
         table_data.append([
             Paragraph(str(i), cell_style),
             Paragraph(d["domain"], domain_style_p),
-            Paragraph(f'<font color="#{score_color.hexval()[1:]}"><b>{d["score_raw"]}/10</b></font>', cell_style),
+            Paragraph(f'<font color="{score_hex}"><b>{d["score_raw"]}/10</b></font>', cell_style),
             Paragraph(d["est_value"], ParagraphStyle("val", fontSize=8, fontName="Helvetica-Bold", textColor=GREEN)),
-            Paragraph(d.get("search_vol", "N/A"), ParagraphStyle("sv", fontSize=8, fontName="Helvetica", textColor=colors.HexColor("#58a6ff"))),
-            Paragraph(d.get("cpc", "N/A"), ParagraphStyle("cpc", fontSize=8, fontName="Helvetica", textColor=YELLOW)),
-            Paragraph(f'<font color="#{comp_color.hexval()[1:]}">{comp}</font>', cell_style),
+            Paragraph(d.get("search_vol", "N/A"), ParagraphStyle("sv",  fontSize=8, fontName="Helvetica", textColor=colors.HexColor("#58a6ff"))),
+            Paragraph(d.get("cpc", "N/A"),        ParagraphStyle("cpc", fontSize=8, fontName="Helvetica", textColor=YELLOW)),
+            Paragraph(f'<font color="{comp_hex}">{comp}</font>', cell_style),
             Paragraph(d["category"], cell_style),
         ])
 
