@@ -3,68 +3,69 @@ from groq import Groq
 import pandas as pd
 import re
 
-# إعداد الصفحة باش تبان احترافية
+# إعداد الصفحة
 st.set_page_config(
-    page_title="Pro Domainer AI", 
-    page_icon="💰", 
+    page_title="Pro Domainer AI v2.0", 
+    page_icon="🚀", 
     layout="wide"
 )
 
-# جلب الـ API Key من secrets (الموجود في Streamlit Cloud أو ملف .streamlit/secrets.toml)
+# محاولة جلب الـ API Key من Secrets
 try:
     GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
     client = Groq(api_key=GROQ_API_KEY)
 except Exception:
-    st.error("⚠️ خاصك تزيد GROQ_API_KEY فـ Secrets!")
+    st.error("⚠️ خطأ: مالقيتش GROQ_API_KEY فـ Streamlit Secrets. تأكد بلي زدتيها!")
     st.stop()
 
 # تصميم الواجهة
 st.title("🚀 Pro Domainer AI Generator")
 st.markdown("---")
 
-# القائمة الجانبية للإعدادات
+# القائمة الجانبية
 with st.sidebar:
     st.header("⚙️ إعدادات البحث")
-    niche = st.text_input("النيش المستهدف", value="Pet Tech", help="مثلاً: AI, Crypto, Pets...")
+    niche = st.text_input("النيش (مثلاً: Pets, AI, SaaS)", value="Pet Care")
     num_ideas = st.slider("عدد الأفكار", 5, 20, 10)
-    st.info("💡 نصيحة: استعمل الكوبون NEWCOM679 فـ Namecheap باش توفر الصولد!")
+    st.divider()
+    st.info("💡 نصيحة: موديل Llama 3.1 دابا أسرع وأذكى فـ اختيار الدومينات.")
 
 # الزر الرئيسي
-if st.button("ابحث عن الهميزات! 🔥"):
-    with st.spinner('الحاج Groq جالس كيقبض فـ الدومينات...'):
+if st.button("قلب على الهميزات! 🔥"):
+    with st.spinner('الحاج Groq كيشوف ليك أحسن الدومينات المتاحة...'):
         
-        # البرومبت اللي كيخلي الذكاء الاصطناعي يفكر بحال "سماسرية" الدومينات
+        # البرومبت المطور
         prompt = f"""
-        Act as a professional domain investor (Domainer). 
+        Act as a professional domain investor (Domainer) with 20 years experience.
         Target Niche: {niche}
         Task: Generate {num_ideas} high-value .com domain names.
         
         Rules:
         1. Only .com extensions. No hyphens or numbers.
-        2. High commercial intent.
-        3. For each domain, provide a predicted 'Resell Value' based on current market trends.
+        2. High commercial value and easy to brand.
+        3. Provide an estimated resale value and a short professional reason.
         
-        Format the output EXACTLY like this (one per line):
+        Format the output EXACTLY like this (no introduction):
         DOMAIN|VALUE|DESCRIPTION
         example.com|$1,500|Short and brandable
         """
 
         try:
+            # استعمال الموديل الجديد llama-3.1-8b-instant
             completion = client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
-                model="llama3-8b-8192",
+                model="llama-3.1-8b-instant",
             )
             
             raw_output = completion.choices[0].message.content.strip().split('\n')
             
-            # معالجة البيانات وعرضها في جدول
             data = []
             for line in raw_output:
                 if '|' in line and not line.startswith('DOMAIN'):
                     parts = line.split('|')
                     if len(parts) == 3:
                         domain_name = parts[0].strip().lower()
-                        # تنظيف الدومين من أي زيادات
+                        # تنظيف الدومين من الأرقام الزايدة اللي كيزيدها الذكاء الاصطناعي بعض المرات
                         domain_name = re.sub(r'^[0-9\.\-\s]+', '', domain_name)
                         
                         data.append({
@@ -77,23 +78,24 @@ if st.button("ابحث عن الهميزات! 🔥"):
             if data:
                 df = pd.DataFrame(data)
                 
-                # عرض الجدول بشكل أنيق
-                st.subheader(f"✅ مقترحات لـ نيش {niche}")
+                # عرض النتائج فـ جدول أنيق
+                st.subheader(f"✅ مقترحات نيش {niche}")
                 
-                # تحويل الجدول لـ HTML باش نزيدو روابط قابلة للضغط
+                # كود لتحويل الروابط لـ أزرار قابلة للضغط
                 def make_clickable(link):
-                    return f'<a target="_blank" href="{link}">شيك فـ Namecheap</a>'
+                    return f'<a target="_blank" href="{link}" style="color: #ff4b4b; text-decoration: none; font-weight: bold;">Check Availability 🔍</a>'
                 
                 df['Check'] = df['Check'].apply(make_clickable)
                 
+                # عرض الجدول كـ HTML
                 st.write(df.to_html(escape=False, index=False), unsafe_allow_html=True)
                 
-                st.success(f"لقينا ليك {len(df)} دومين فيهم إمكانيات كبيرة!")
+                st.success("تم توليد النتائج بنجاح!")
             else:
-                st.warning("الـ API عطانا فورماط غريبة، عاود كليكي على الزر.")
+                st.warning("الـ API رجع استجابة خاوية، حاول مرة أخرى.")
 
         except Exception as e:
-            st.error(f"وقع مشكل تقني: {e}")
+            st.error(f"وقع مشكل تقني: {str(e)}")
 
 st.markdown("---")
-st.caption("مطور بواسطة Mouhcine Digital Systems 🛠️ - استثمر بذكاء.")
+st.caption("Developed by Mouhcine Digital Systems 🛠️ | Powered by Groq Llama 3.1")
